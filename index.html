@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html ng-app="test" lang="en">
+    
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>BioBots</title>
+    <!-- Bootstrap Core CSS -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <!-- MetisMenu CSS -->
+    <link href="css/plugins/metisMenu/metisMenu.min.css" rel="stylesheet">
+    <!-- Timeline CSS -->
+    <link href="css/plugins/timeline.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link href="css/sb-admin-2.css" rel="stylesheet">
+    <link rel="stylesheet" href="bower_components/ng-tags-input/ng-tags-input.min.css" />   
+    <link href="css/styles.css" rel="stylesheet">
+    <!-- Custom Fonts -->
+    <link href="font-awesome-4.1.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+    
+    
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+        <![endif]-->
+    
+    
+    <script src="bower_components/jquery/dist/jquery.js"></script> 
+    <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.2.24/angular.js"></script>
+
+    <script src="//angular-ui.github.io/bootstrap/ui-bootstrap-tpls-0.12.0.js"></script>
+    <script src="bower_components/angular-smart-table/dist/smart-table.js"></script>
+    <script src="https://rawgit.com/dwmkerr/angular-modal-service/master/dst/angular-modal-service.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.0rc1/angular-route.min.js"></script>
+    <!-- jQuery Version 1.11.0 -->
+    <!--<script src="js/jquery-1.11.0.js"></script>-->
+    <!--<script src="app.js"></script>-->
+    <script src="jscode.js"></script>
+
+    <script src="bower_components/ng-tags-input/ng-tags-input.min.js"></script>
+    
+    <link href="bower_components/angular-xeditable/dist/css/xeditable.css" rel="stylesheet">
+    <script src="bower_components/angular-xeditable/dist/js/xeditable.js"></script>
+    
+    <!-- Highcharts version 4.1.7 (2015-06-26)-->
+    <script src ="/js/code.highcharts.min.js"></script>
+    <script src ="/js/exporting.min.js"></script><!--plugin that allows us export charts -->
+
+</head>  
+    
+<!--styles.css in the css folder holds many classes used below-->   
+<body>
+    <div id = "wrapper"><!--doesn't have a function-->
+    <div id = "page-wrapper"><!--doesn't have a function-->
+    <div ng-controller = "MainCtrl" class="LeftShift" >
+            <h1 id = "header" class = "center">BioBots</h1>
+            
+            <!--data calling interface-->
+            <div class = "downShift">
+                <!--the form for user info -->
+                <form ng-show = "arrays" class="formShift" id="arrayIDForm">
+                    <div class="col-xs-8"><!--controls the size of the form entry boxes-->
+                    <div class="form-group, spacer">
+                        <div id="errMsg"><!--error message appears if there is an error in the form entry-->
+                            <label class="colorRed" ng-show="errorInFormEntry">Form Error:</label>
+                        </div>
+                
+                        <label>Serial Number</label>
+                        <input class="form-control" placeholder="Username" ng-model ="username">
+                    </div>
+                    <div class="form-group, spacer">
+                        <label>Username</label>
+                        <input type="password" class="form-control" id="exampleInputPassword" placeholder="Password" ng-model="password">
+                    </div>
+                    <div class= "spacer">
+                        <button type="submit" id = "submitbtn" class="btn btn-success" ng-click="compiler()">Submit</button>
+                        <img id="mySpinner" src="loader.gif" ng-show="pageLoading" />
+                    </div>
+                    </div>
+                </form>
+                
+                <!--form for shared directory -->
+                <p class = "spacer, padding2" ng-show="directories"> Not Available </p>
+            </div>
+            
+            <!--graphing interface-->
+            <div id= "graphs" ng-show ="graphingInterface">
+                <button class="btn btn-primary btn-sm" ng-click="goBack()"><span class ="glyphicon glyphicon-arrow-left" aria-hidden='true'></span></button><br><br>
+                
+                <addgraphsbutton></addgraphsbutton><br><br> <!--calls the add graphs button directive-->             
+                <!-- each graph pagkage (x/y dropdowns, delete button, custom data button, graph) has its own unique id - graphWrapper0, graphWrapper1, etc.-->
+                <div id='graphWrapper0'>
+                    <label>  X Axis: </label>    
+                    <select ng-model = "xValues[0]" ng-change = "graphing(0)">
+                        <option ng-repeat="titles in data_set_titles" value="{{titles}}">{{titles}}</option>
+                    </select>
+
+                    <label>  Y Axis: </label>    
+                    <select ng-model = "yValues[0]" ng-change = "graphing(0)">
+                        <option ng-repeat="titles in data_set_titles" value="{{titles}}">{{titles}}</option>
+                    </select>
+                    <button class="btn btn-info btn-xs" data-toggle="modal" data-target="#myModal">Custom Data Set</button>
+
+                    <!--Popup modal for custom data -->
+                    <div id="myModal" class="modal fade" role="dialog">
+                        <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h4 class="modal-title">This will be an option in the dropdown:</h4>
+                                <div class="modal-body">
+                                    <form>
+                                    <div class="form-group, spacer">
+                                        <label>Title</label>
+                                        <input type="text" class="form-control" placeholder="Data Set Title" ng-model="customTitle">
+                                    </div>  
+                                    <div class="form-group, spacer" id="expressionBuilder">
+                                        <label>Build Expression</label>
+                                        <input type="text" class="form-control" placeholder="Expression (example: writes/100)" id ="exp0" ng-model="formula">
+                                    </div>
+                                    <br><br><button type="button" class="btn btn-success" ng-click="customData()" data-dismiss="modal">Save</button>  
+                                    <button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
+                                    </form>
+                                </div>
+                              </div> 
+                            </div>
+                        </div>
+                    </div>
+                    <!--"container0" is the id for the first highcharts graph; each new graph has a unique id (container0, container1, etc.)-->
+                    <div id="container0" class="spacer" ></div>
+                    <!--"space-for-buttons" is a div that holds new charts-->
+                    <div id="space-for-buttons"></div>
+                </div>
+            </div>
+    </div>
+    </div>
+    </div>
+    
+    <!-- Bootstrap Core JavaScript -->
+    <script src="js/bootstrap.min.js"></script>
+    <!-- Metis Menu Plugin JavaScript -->
+    <script src="js/plugins/metisMenu/metisMenu.min.js"></script>
+    <!-- Custom Theme JavaScript -->
+    <script src="js/sb-admin-2.js"></script>
+    
+</body>
+</html>
